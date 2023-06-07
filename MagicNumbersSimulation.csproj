@@ -11,12 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Anlysis\10m\" />
-    <Folder Include="Anlysis\5m\" />
-    <Folder Include="Anlysis\1m\" />
-    <Folder Include="Results\5m\" />
-    <Folder Include="Results\10m\" />
-	  <Folder Include="Models"/>
+    <Folder Include="Analysis\1m\" />
+    <Folder Include="Results\1m\" />
   </ItemGroup>
 
 </Project>

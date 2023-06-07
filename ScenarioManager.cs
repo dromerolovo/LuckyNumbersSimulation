@@ -9,81 +9,125 @@ using MagicNumbersSimulation.Models;
 
 namespace MagicNumbersSimulation
 {
-    public static class ScenarioManager
+    public class ScenarioManager
     {
-        public static readonly int GameRuns = 1000000;
-        private static readonly ushort[] Scenarios = new ushort[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        private static readonly ushort NumberCeiling = 80;
-        private static readonly ushort LotteryUpperLimitResult = 20;
-        public static readonly ushort Iteration = 100;
-        public static readonly float TicketPrize = 0.01f;
-        private static readonly uint[,] PrizeTable = new uint[11, 11];
+        private uint gameRuns;
+        private readonly ushort[] scenarios = new ushort[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        private readonly ushort numberCeiling = 80;
+        private readonly ushort lotteryUpperLimitResult = 20;
+        public readonly float ticketPrize = 0.01f;
+        private readonly uint[,] prizeTable = new uint[11, 11];
+        private readonly ConfigScenarioManager _configScenarioManager;
+        private string subSubDirectory;
 
-        static ScenarioManager()
+        public ScenarioManager(ConfigScenarioManager configScenarioManager)
         {
             //[hits or right guesses, selected numbers count] 
-            PrizeTable[1, 1] = 3;
-            PrizeTable[1, 2] = 1;
+            prizeTable[1, 1] = 3;
+            prizeTable[1, 2] = 1;
 
-            PrizeTable[2, 2] = 6;
-            PrizeTable[2, 3] = 3;
-            PrizeTable[2, 4] = 2;
-            PrizeTable[2, 5] = 1;
+            prizeTable[2, 2] = 6;
+            prizeTable[2, 3] = 3;
+            prizeTable[2, 4] = 2;
+            prizeTable[2, 5] = 1;
 
-            PrizeTable[3, 3] = 25;
-            PrizeTable[3, 4] = 5;
-            PrizeTable[3, 5] = 2;
-            PrizeTable[3, 6] = 1;
-            PrizeTable[3, 7] = 1;
+            prizeTable[3, 3] = 25;
+            prizeTable[3, 4] = 5;
+            prizeTable[3, 5] = 2;
+            prizeTable[3, 6] = 1;
+            prizeTable[3, 7] = 1;
 
-            PrizeTable[4, 4] = 120;
-            PrizeTable[4, 5] = 10;
-            PrizeTable[4, 6] = 8;
-            PrizeTable[4, 7] = 4;
-            PrizeTable[4, 8] = 2;
-            PrizeTable[4, 9] = 1;
-            PrizeTable[4, 10] = 1;
+            prizeTable[4, 4] = 120;
+            prizeTable[4, 5] = 10;
+            prizeTable[4, 6] = 8;
+            prizeTable[4, 7] = 4;
+            prizeTable[4, 8] = 2;
+            prizeTable[4, 9] = 1;
+            prizeTable[4, 10] = 1;
 
-            PrizeTable[5, 5] = 380;
-            PrizeTable[5, 6] = 55;
-            PrizeTable[5, 7] = 20;
-            PrizeTable[5, 8] = 10;
-            PrizeTable[5, 9] = 5;
-            PrizeTable[5, 10] = 2;
+            prizeTable[5, 5] = 380;
+            prizeTable[5, 6] = 55;
+            prizeTable[5, 7] = 20;
+            prizeTable[5, 8] = 10;
+            prizeTable[5, 9] = 5;
+            prizeTable[5, 10] = 2;
 
-            PrizeTable[6, 6] = 2000;
-            PrizeTable[6, 7] = 150;
-            PrizeTable[6, 8] = 50;
-            PrizeTable[6, 9] = 30;
-            PrizeTable[6, 10] = 20;
+            prizeTable[6, 6] = 2000;
+            prizeTable[6, 7] = 150;
+            prizeTable[6, 8] = 50;
+            prizeTable[6, 9] = 30;
+            prizeTable[6, 10] = 20;
 
-            PrizeTable[7, 7] = 5000;
-            PrizeTable[7, 8] = 1000;
-            PrizeTable[7, 9] = 200;
-            PrizeTable[7, 10] = 50;
+            prizeTable[7, 7] = 5000;
+            prizeTable[7, 8] = 1000;
+            prizeTable[7, 9] = 200;
+            prizeTable[7, 10] = 50;
 
-            PrizeTable[8, 8] = 20000;
-            PrizeTable[8, 9] = 4000;
-            PrizeTable[8, 10] = 500;
+            prizeTable[8, 8] = 20000;
+            prizeTable[8, 9] = 4000;
+            prizeTable[8, 10] = 500;
 
-            PrizeTable[9, 9] = 50000;
-            PrizeTable[9, 10] = 10000;
+            prizeTable[9, 9] = 50000;
+            prizeTable[9, 10] = 10000;
 
-            PrizeTable[10, 10] = 100000;
+            prizeTable[10, 10] = 100000;
 
-            CreateDirectories();
+            _configScenarioManager = configScenarioManager;
+            InitializeValuesAndDirectories();
         }
 
-        private static void CreateDirectories()
+        private void InitializeValuesAndDirectories()
         {
-            if(!Directory.Exists("Results"))
+            string subDirectory;
+
+            if (!Directory.Exists("Results"))
             {
                 Directory.CreateDirectory("Results");
             }
 
-            if(!Directory.Exists("Results/1m"))
+            if(_configScenarioManager.SimulationType == SimulationType.RealWorld)
             {
-                Directory.CreateDirectory("Results/1m");
+                subDirectory = "RealWorld";
+                if (!Directory.Exists($"Results/{subDirectory}"))
+                {
+                    Directory.CreateDirectory($"Results/{subDirectory}");
+                }
+            }
+            else
+            {
+                subDirectory = "ByScenarios";
+                if (!Directory.Exists($"Results/{subDirectory}"))
+                {
+                    Directory.CreateDirectory($"Results/{subDirectory}");
+                }
+            }
+
+            switch (_configScenarioManager.Iterations) {
+                case Iterations.M1:
+                    subSubDirectory = $"Results/{subDirectory!}/M1";
+                    gameRuns = (uint)Iterations.M1;
+                    break;
+                case Iterations.M2:
+                    subSubDirectory = $"Results/{subDirectory}/M2";
+                    gameRuns = (uint)Iterations.M2;
+                    break;
+                case Iterations.M5:
+                    subSubDirectory = $"Results/{subDirectory}/M5";
+                    gameRuns = (uint)Iterations.M5;
+                    break;
+                case Iterations.M7:
+                    subSubDirectory = $"Results/{subDirectory}/M7";
+                    gameRuns = (uint)Iterations.M7;
+                    break;
+                case Iterations.M10:
+                    subSubDirectory = $"Results/{subDirectory}/M10";
+                    gameRuns = (uint)Iterations.M10;
+                    break;  
+            }
+
+            if(!Directory.Exists(subSubDirectory))
+            {
+                Directory.CreateDirectory(subSubDirectory);
             }
         }
 
@@ -126,32 +170,32 @@ namespace MagicNumbersSimulation
             }
         }
 
-        public static void Execute()
+        public void Execute()
         {
             uint counter = 0;
-            for(ushort i = 1; i < Scenarios.Length + 1; i++)
+            for(ushort i = 1; i < scenarios.Length + 1; i++)
             {
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture)
                 {
                     Delimiter = ";"
                 };
 
-                using (var writer = new StreamWriter($"Results/1m/scenario{i}"))
+                using (var writer = new StreamWriter($"{subSubDirectory}/Scenario{i}"))
                 using (var csv = new CsvWriter(writer, config))
                 {
                     csv.WriteHeader<ResultModel>();
                     csv.NextRecord();
-                    for (var y = 0; y < GameRuns; y++)
+                    for (var y = 0; y < gameRuns; y++)
                     {
                         counter++;
                         ushort[] lotteryResult = CreateLotteryResult();
-                        if (y % 100 == 0)
+                        if (y % _configScenarioManager.Cycles == 0)
                         {
                             lotteryResult = CreateLotteryResult();
                         }
                         ushort[] userResult = CreateUserResult(i);
                         var rightGuesses = CalculateRightGuesses(userResult, lotteryResult);
-                        var prize = PrizeTable[rightGuesses, i] * 0.01;
+                        var prize = prizeTable[rightGuesses, i] * 0.01;
                         var resultModel = new ResultModel
                         {
                             Id = counter,
@@ -170,13 +214,13 @@ namespace MagicNumbersSimulation
 
         }
 
-        public static ushort[] CreateUserResult(ushort scenarioNumber)
+        private ushort[] CreateUserResult(ushort scenarioNumber)
         {
             ushort[] userSelectedNumbers = new ushort[scenarioNumber];
             for (int i = 0; i < userSelectedNumbers.Length; i++)
             {
                 Random random = new Random();
-                ushort randomNumber = (ushort)random.Next(1, NumberCeiling);
+                ushort randomNumber = (ushort)random.Next(1, numberCeiling);
                 if (Utils.IsNumberSelected<ushort>(userSelectedNumbers, randomNumber))
                 {
                     i--;
@@ -190,13 +234,13 @@ namespace MagicNumbersSimulation
             return userSelectedNumbers;
         }
 
-        public static ushort[] CreateLotteryResult()
+        private ushort[] CreateLotteryResult()
         {
-            ushort[] lotterySelectedNumbers = new ushort[LotteryUpperLimitResult];
+            ushort[] lotterySelectedNumbers = new ushort[lotteryUpperLimitResult];
             for (int i = 0; i < lotterySelectedNumbers.Length; i++)
             {
                 Random random = new Random();
-                ushort randomNumber = (ushort)random.Next(1, NumberCeiling);
+                ushort randomNumber = (ushort)random.Next(1, numberCeiling);
                 if (Utils.IsNumberSelected<ushort>(lotterySelectedNumbers, randomNumber))
                 {
                     i--;
@@ -210,7 +254,7 @@ namespace MagicNumbersSimulation
             return lotterySelectedNumbers;
         }
         
-        public static ushort CalculateRightGuesses(ushort[] userSelectedNumbers, ushort[] lotterySelectedNumbers)
+        private ushort CalculateRightGuesses(ushort[] userSelectedNumbers, ushort[] lotterySelectedNumbers)
         {
             bool[] set = new bool[80];
 
@@ -230,13 +274,5 @@ namespace MagicNumbersSimulation
 
             return rightGuesses;
         }
-
-
-    }
-
-    public class ConfigScenarioManager
-    {
-        public ushort Iterator { get; set; }
-        public float TicketPrize { get; set; } 
     }
 }
